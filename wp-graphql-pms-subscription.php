@@ -4,7 +4,7 @@
  * Plugin Name:       WP GraphQL PMS Subscription
  * Plugin URI:        https://github.com/Nurckye/Cozmoslabs-PMS-GraphQL-subscription-status-plugin
  * Description:       Gives the ability to see if an user has an active subscription for the Cozmoslabs plugin as a GraphQL Field.
- * Version:           0.0.1
+ * Version:           1.1
  * Requires at least: 5.0
  * Requires PHP:      7.2
  * Author:            Radu Nitescu
