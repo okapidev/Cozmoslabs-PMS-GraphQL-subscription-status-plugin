@@ -4,7 +4,7 @@
  * Plugin Name:       WP GraphQL PMS Subscription
  * Plugin URI:        https://github.com/Nurckye/Cozmoslabs-PMS-GraphQL-subscription-status-plugin
  * Description:       Gives the ability to see if an user has an active subscription for the Cozmoslabs plugin as a GraphQL Field.
- * Version:           1.1
+ * Version:           1.2
  * Requires at least: 5.0
  * Requires PHP:      7.2
  * Author:            Radu Nitescu
@@ -22,7 +22,7 @@ function graphql_register_pms_subscription() {
 			'type'        => 'Boolean',
 			'description' => __( 'Does the current user have an active subscription', 'wp-graphql' ),
 			'resolve'     => function( $user ) {
-				$is_active = wpgql_rt_check_active_subscription( $user->userId );
+				$is_active = wpgql_rt_check_active_subscription( $user->userId, $user->roles );
 				return $is_active;
 			},
 		]
@@ -84,13 +84,18 @@ function curry_resolver($value) {
 	};
 }
 
-function wpgql_rt_check_active_subscription( $wpgql_rt_user_id ) {
-    global $wpdb;
+function wpgql_rt_check_active_subscription( $wpgql_rt_user_id, $roles ) {
+	global $wpdb;
+
+	if ( in_array("administrator", $roles) ) { 
+		return true;
+	}
+
     $result = $wpdb->get_results ( "SELECT * FROM wp_pms_member_subscriptions WHERE user_id = $wpgql_rt_user_id;" );
 	if ( count( $result ) == 0 ) {
-		return null;
+		return false;
 	}
-    return  $result[0]->status == 'active';
+	return  $result[0]->status == 'active';
 }
 
 function query_subscription_field( $wpgql_rt_user_id, $field ) {
