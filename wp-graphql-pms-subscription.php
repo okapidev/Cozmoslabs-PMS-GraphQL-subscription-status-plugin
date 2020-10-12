@@ -4,7 +4,7 @@
  * Plugin Name:       WP GraphQL PMS Subscription
  * Plugin URI:        https://github.com/Nurckye/Cozmoslabs-PMS-GraphQL-subscription-status-plugin
  * Description:       Gives the ability to see if an user has an active subscription for the Cozmoslabs plugin as a GraphQL Field.
- * Version:           1.2
+ * Version:           1.3
  * Requires at least: 5.0
  * Requires PHP:      7.2
  * Author:            Radu Nitescu
@@ -30,7 +30,7 @@ function graphql_register_pms_subscription() {
 
 	$field_dict = array(
 		"subscriptionStartDate" => 'start_date',
-		"subscriptionExpirationDate" => 'expiration_date',
+		"subscriptionExpirationDate" => 'billing_next_payment',
 		"billingDuration" => 'billing_duration',
 		"billingDurationUnit" => 'billing_duration_unit',
 		"status" => 'status'
@@ -95,6 +95,16 @@ function wpgql_rt_check_active_subscription( $wpgql_rt_user_id, $roles ) {
 	if ( count( $result ) == 0 ) {
 		return false;
 	}
+
+	if ( $result[0]->status == 'canceled' ) { 
+		$raw_date = date_parse( $result[0]->billing_next_payment );
+		$datetime = new DateTime();
+		$merged_date = $raw_date["year"] * 10000 + $raw_date["month"] * 100 + $raw_date["day"];
+		$merged_today = intval(date("Y")) * 10000 + intval(date("m")) * 100 + intval(date("d"));
+
+		return $merged_date > $merged_today;
+	}
+
 	return  $result[0]->status == 'active';
 }
 
